@@ -46,16 +46,6 @@
             "destination": "/tmp/requirements.txt"
         },
         {
-            "type": "file",
-            "source": "./superriya_github",
-            "destination": "/tmp/superrirya_github"
-        },
-        {
-            "type": "file",
-            "source": "./mkssh.sh",
-            "destination": "/tmp/mkssh.sh"
-        },
-        {
             "type" : "shell",
             "execute_command": "{{.Vars}} sudo -E -S bash '{{.Path}}'",
             "scripts": [

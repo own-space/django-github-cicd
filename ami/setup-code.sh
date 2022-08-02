@@ -35,7 +35,7 @@ ssh-keyscan github.com >> ~/.ssh/known_hosts
 pip3 install psycopg2-binary
 
 sleep 10
-git clone --branch main git@github.com:superriya/sumits-blogsite.git /src
+git clone --branch main https://github.com/own-space/django-github-cicd.git /src
 me=`whoami`
 sudo chown -Rf $me /src
 
@@ -44,18 +44,18 @@ pip3 install -r /tmp/requirements.txt
 
 #setting APP_DIR
 export APP_DIR=/src/app
-echo "export APP_DIR=/src/app" >> ~/.bash_profile
-echo "export APP_DIR=/src/app" >> /home/ec2-user/.bash_profile
+echo "export APP_DIR=/src/application" >> ~/.bash_profile
+echo "export APP_DIR=/src/application" >> /home/ec2-user/.bash_profile
 
 # script to create unique id for app secret key
 echo 'import uuid' > /tmp/generate_secret.py
 echo 'print(uuid.uuid4())' >> /tmp/generate_secret.py
 secret_key=`python3 /tmp/generate_secret.py`
-echo "NEW_APP_SECRET_KEY='${secret_key}'" | tee /src/app/BlogWebsite/env
+echo "NEW_APP_SECRET_KEY='${secret_key}'" | tee /src/application/BlogWebsite/env
 
-touch /src/app/BlogWebsite/.env
-cat << EOF > /src/app/BlogWebsite/.env
-DB_PASSWORD="ddf5d97a68be883cdad5610ad9c2c6c37c1f8eb6a995c713df49944a00032eda"
+touch /src/application/django_app/.env
+cat << EOF > /src/application/django_app/.env
+DB_PASSWORD="${DB_PWD}"
 DJANGO_SECRET_KEY="${APP_SECRET}"
 SECRET_KEY="${secret_key}"
 DB_USER="${DB_APP_USER}"
@@ -65,9 +65,9 @@ DB_HOST="${DB_HOST}"
 DB_PORT="${DB_PORT}"
 EOF
 
-touch /src/app/BlogWebsite/env
-cat << EOF > /src/app/BlogWebsite/env
-DB_PASSWORD="ddf5d97a68be883cdad5610ad9c2c6c37c1f8eb6a995c713df49944a00032eda"
+touch /src/application/django_app/env
+cat << EOF > /src/application/django_app/env
+DB_PASSWORD="${DB_PWD}"
 DJANGO_SECRET_KEY="${APP_SECRET}"
 DB_USER="${DB_APP_USER}"
 DB_NAME="${DB_NAME}"
@@ -76,11 +76,10 @@ DB_HOST="${DB_HOST}"
 DB_PORT="${DB_PORT}"
 EOF
 
-python3 /src/app/manage.py makemigrations
-python3 /src/app/manage.py migrate
+python3 /src/application/manage.py makemigrations
+python3 /src/application/manage.py migrate
 
 sudo chown -Rf ec2-user /src
 
-
 # update settings file to allow hosts from other domains
-sed -i 's/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \[\"*\"\]/g' /src/app/BlogWebsite/settings.py
+sed -i 's/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \[\"*\"\]/g' /src/application/django_app/settings.py

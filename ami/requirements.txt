@@ -8,6 +8,5 @@ django-environ
 django-froala-editor
 django-taggit
 djangorestframework
-Pillow
 pytz
 sqlparse
