@@ -1,0 +1,13 @@
+uuid
+asgiref==3.5.0
+crispy-bootstrap5
+Django
+django-cors-headers
+django-crispy-forms
+django-environ
+django-froala-editor
+django-taggit
+djangorestframework
+Pillow
+pytz
+sqlparse

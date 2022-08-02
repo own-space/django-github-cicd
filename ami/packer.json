@@ -1,0 +1,77 @@
+{
+    "variables" : {
+        "region" : "eu-west-2",
+        "aws_access_key_id": "{{ env `AWS_ACCESS_KEY_ID` }}",
+        "aws_secret_access_key": "{{ env `AWS_SECRET_ACCESS_KEY` }}",
+        "APP_SECRET": "{{ env `APP_SECRET` }}",
+        "new_secret": "{{ env `NEW_SECRET` }}",
+        "github_branch": "{{ env `GITHUB_BRANCH` }}",
+        "source_ami" : "ami-0d729d2846a86a9e7",
+        "GITHUB_SHA": "{{ env `GITHUB_SHA` }}",
+        "DB_APP_USER": "{{ env `DB_APP_USER` }}",
+        "DB_NAME": "{{ env `DB_NAME` }}",
+        "DB_AUTH": "{{ env `DB_AUTH` }}",
+        "DB_HOST": "{{ env `DB_HOST` }}",
+        "DB_PORT": "{{ env `DB_PORT` }}",
+        "DB_PWD": "{{ env `DB_PWD` }}"
+    },
+    "builders" : [
+        {
+            "type" : "amazon-ebs",
+            "profile" : "default",
+            "region" : "{{user `region`}}",
+            "access_key": "{{ user `AWS_ACCESS_KEY_ID` }}",
+            "secret_key": "{{ user `AWS_SECRET_ACCESS_KEY` }}",
+            "instance_type" : "t2.micro",
+            "source_ami" : "{{ user `source_ami` }}",
+            "ssh_username" : "ec2-user",
+            "ssh_timeout": "2m",
+            "ami_name" : "django-app-{{user `GITHUB_BRANCH`}}-{{user `GITHUB_SHA`}}",
+            "ami_description" : "Ubuntu Image with \"django\" application installed",
+            "run_tags" : {
+                "Name" : "packer-built-ami"
+            },
+            "tags" : {
+                "Tool" : "Packer",
+                "Author" : "user",
+                "Github Branch": "{{ user `github_branch` }}",
+                "Github SHA": "{{ user `GITHUB_SHA` }}"
+            }
+        }
+    ],
+    "provisioners" : [
+        {
+            "type": "file",
+            "source": "./requirements.txt",
+            "destination": "/tmp/requirements.txt"
+        },
+        {
+            "type": "file",
+            "source": "./superriya_github",
+            "destination": "/tmp/superrirya_github"
+        },
+        {
+            "type": "file",
+            "source": "./mkssh.sh",
+            "destination": "/tmp/mkssh.sh"
+        },
+        {
+            "type" : "shell",
+            "execute_command": "{{.Vars}} sudo -E -S bash '{{.Path}}'",
+            "scripts": [
+                "./setup-code.sh"
+            ],
+            "environment_vars": [
+                "FOO=bar",
+                "APP_SECRET={{ user `APP_SECRET` }}",
+                "DB_APP_USER={{ user `DB_APP_USER` }}",
+                "DB_NAME={{ user `DB_NAME`}}",
+                "DB_AUTH={{ user `DB_AUTH` }}",
+                "DB_HOST={{ user `DB_HOST` }}",
+                "DB_PORT={{ user `DB_PORT` }}",
+                "DB_PWD={{ user `DB_PWD` }}",
+                "github_branch={{ user `github_branch` }}"
+            ]
+        }
+    ]
+}
