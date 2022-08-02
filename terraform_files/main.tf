@@ -208,7 +208,7 @@ resource "aws_key_pair" "deployer" {
 }
 
 data "template_file" "user_data" {
-  template = file("vm_datafiles/django_webserver.sh")
+  template = file("userdata/django_webserver.sh")
 }
 
 resource "aws_launch_configuration" "django_app_launch_conf" {
