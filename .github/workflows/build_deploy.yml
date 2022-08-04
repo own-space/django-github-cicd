@@ -30,8 +30,8 @@ jobs:
           templateFile: 'packer.json'
           workingDir: 'ami'
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CICD_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CICD_SECRET_ACCESS_KEY }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           GITHUB_REPO: ${{ github.server_url }}/${{ github.repository }}.git

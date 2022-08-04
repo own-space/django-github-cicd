@@ -226,9 +226,9 @@ resource "aws_launch_configuration" "django_app_launch_conf" {
 
 # Creating Security Group for ELB
 resource "aws_security_group" "elb_sg" {
-  name        = "sg-elb-${var.lc_name_prefix}"
+  name        = "elb-sg-${var.lc_name_prefix}"
   description = "Demo Module"
-  vpc_id      = "${aws_vpc.demovpc.id}"
+  vpc_id      = "${aws_vpc.django_vpc.id}"
 # Inbound Rules
   # HTTP access from anywhere
   ingress {
@@ -268,8 +268,8 @@ resource "aws_elb" "web_elb" {
     "${aws_security_group.elb_sg.id}"
   ]
   subnets = [
-    "${aws_subnet.djanog_subnet.id}",
-    "${aws_subnet.djanog_subnet_2.id}"
+    "${aws_subnet.django_subnet.id}",
+    "${aws_subnet.django_subnet2.id}",
   ]
   cross_zone_load_balancing   = true
   health_check {
