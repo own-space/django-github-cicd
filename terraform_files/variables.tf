@@ -1,3 +1,7 @@
+variable "lc_name_prefix" {
+  default = "django-app-cicd"
+}
+
 variable "vpc_cidr" {
   description = "CIDR range of VPC"
   type        = string

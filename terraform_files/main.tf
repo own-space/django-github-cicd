@@ -4,7 +4,7 @@ terraform {
     organization = "superriya-sumits-blog"
 
     workspaces {
-      name = "Sumit-blogsite-API-driven"
+      name = "GitHub-Actions-CICD"
     }
   }
 }
@@ -212,7 +212,7 @@ data "template_file" "user_data" {
 }
 
 resource "aws_launch_configuration" "django_app_launch_conf" {
-  name_prefix     = "django-app-"
+  name_prefix     = var.lc_name_prefix
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = "t2.micro"
   security_groups = [ "${aws_security_group.django_security_group.id}" ]
@@ -224,38 +224,78 @@ resource "aws_launch_configuration" "django_app_launch_conf" {
   }
 }
 
+# Creating Security Group for ELB
+resource "aws_security_group" "elb_sg" {
+  name        = "sg-elb-${var.lc_name_prefix}"
+  description = "Demo Module"
+  vpc_id      = "${aws_vpc.demovpc.id}"
+# Inbound Rules
+  # HTTP access from anywhere
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  # HTTPS access from anywhere
+  ingress {
+    from_port   = 4000
+    to_port     = 4000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  # SSH access from anywhere
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+# Outbound Rules
+  # Internet access to anywhere
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Create the ELB
+resource "aws_elb" "web_elb" {
+  name = "web-elb-${var.lc_name_prefix}"
+  security_groups = [
+    "${aws_security_group.elb_sg.id}"
+  ]
+  subnets = [
+    "${aws_subnet.djanog_subnet.id}",
+    "${aws_subnet.djanog_subnet_2.id}"
+  ]
+  cross_zone_load_balancing   = true
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 2
+    timeout = 3
+    interval = 30
+    target = "HTTP:4000/"
+  }
+  listener {
+    lb_port = 80
+    lb_protocol = "http"
+    instance_port = "4000"
+    instance_protocol = "http"
+  }
+}
+
 # Create the Auto Scaling Group
 resource "aws_autoscaling_group" "django_app_asg" {
   #availability_zones   = [ var.availabilityZone, var.availabilityZone_b ]
+  name_prefix          = var.lc_name_prefix
   desired_capacity     = 1
   max_size             = 1
   min_size             = 0
+  health_check_type    = "ELB"
+  load_balancers       = "${aws_elb.web_elb.id}"
   launch_configuration = "${aws_launch_configuration.django_app_launch_conf.name}"
   vpc_zone_identifier  = [ aws_subnet.django_subnet.id, aws_subnet.django_subnet2.id ]
 }
-
-
-# Instance for the web server
-# resource "aws_instance" "new-vm" {
-#   ami                         = data.aws_ami.ubuntu.id
-#   instance_type               = "t2.micro"
-#   key_name                    = "${aws_key_pair.deployer.key_name}"
-#   subnet_id                   = aws_subnet.django_subnet.id
-#   #security_groups             = [ "${aws_security_group.django_security_group.id}" ]
-#   vpc_security_group_ids      = [ "${aws_security_group.django_security_group.id}" ]
-#   associate_public_ip_address = true
-
-#   tags = {
-#     "method" = "teffaform"
-#   }
-
-#   #   user_data = <<EOF
-#   # #!/bin/bash
-#   # #yum update -y 
-#   # #python3 /src/manage.py runserver 0.0.0.0:4000
-#   # EOF
-#   # root_block_device {
-#   #   volume_size           = 50
-#   #   delete_on_termination = true
-#   # }
-# }
