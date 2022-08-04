@@ -5,6 +5,7 @@
         "aws_secret_access_key": "{{ env `AWS_SECRET_ACCESS_KEY` }}",
         "APP_SECRET": "{{ env `APP_SECRET` }}",
         "new_secret": "{{ env `NEW_SECRET` }}",
+        "GITHUB_REPO": "{{ env `GITHUB_REPO` }}",
         "github_branch": "{{ env `GITHUB_BRANCH` }}",
         "source_ami" : "ami-0d729d2846a86a9e7",
         "GITHUB_SHA": "{{ env `GITHUB_SHA` }}",
@@ -60,6 +61,7 @@
                 "DB_HOST={{ user `DB_HOST` }}",
                 "DB_PORT={{ user `DB_PORT` }}",
                 "DB_PWD={{ user `DB_PWD` }}",
+                "GITHUB_REPO={{ user `GITHUB_REPO` }}",
                 "github_branch={{ user `github_branch` }}"
             ]
         }
