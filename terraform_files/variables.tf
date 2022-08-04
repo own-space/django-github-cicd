@@ -2,6 +2,10 @@ variable "lc_name_prefix" {
   default = "django-app-cicd"
 }
 
+variable "aws_account_id" {
+  default = "${var.aws_account_id}"
+}
+
 variable "vpc_cidr" {
   description = "CIDR range of VPC"
   type        = string
