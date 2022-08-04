@@ -3,7 +3,7 @@ variable "lc_name_prefix" {
 }
 
 variable "aws_account_id" {
-  default = "${var.aws_account_id}"
+  default = "012865019949"
 }
 
 variable "vpc_cidr" {
